@@ -24,7 +24,7 @@ module WordSmith
         parser = OptionParser.new do |opts|
           opts.banner = "Usage: #{EXECUTABLE_NAME} [word] [options...]"
 
-          opts.on(OPENAI_API_KEY_COMMAND, 'Set the OpenAI API key') do |key|
+          opts.on("#{OPENAI_API_KEY_COMMAND} [key]", 'Set the OpenAI API key') do |key|
             store_open_a_i_api_key(key)
 
             exit
