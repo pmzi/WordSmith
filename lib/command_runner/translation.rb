@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'sorbet-runtime'
+require_relative '../services/open_a_i'
 
 module WordSmith
   module CommandRunner
@@ -11,7 +12,7 @@ module WordSmith
 
         sig { params(word: String, options: T.nilable(T::Hash[Symbol, String])).void }
         def run(word, options = nil)
-          puts word
+          Services::OpenAI.new.translate(word)
         end
       end
     end

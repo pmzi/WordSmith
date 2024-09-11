@@ -3,8 +3,9 @@
 
 require 'optparse'
 require_relative '../../version'
-require_relative '../open_a_i'
+require_relative '../services/open_a_i'
 require_relative '../helpers/str'
+require_relative 'translation'
 require 'sorbet-runtime'
 
 module WordSmith
@@ -16,6 +17,7 @@ module WordSmith
 
       EXECUTABLE_NAME = 'ws'
       OPENAI_API_KEY_COMMAND = '--set-openai-api-key'
+      OPENAI_ORG_ID_COMMAND = '--set-openai-org-id'
 
       sig { params(args: T::Array[String]).void }
       def run(args)
@@ -26,6 +28,12 @@ module WordSmith
 
           opts.on("#{OPENAI_API_KEY_COMMAND} [key]", 'Set the OpenAI API key') do |key|
             store_open_a_i_api_key(key)
+
+            exit
+          end
+
+          opts.on("#{OPENAI_ORG_ID_COMMAND} [key]", 'Set the OpenAI Org ID') do |key|
+            store_open_a_i_org_id(key)
 
             exit
           end
@@ -58,11 +66,12 @@ module WordSmith
       def print_help(opts)
         Kernel.puts opts
 
-        return unless WordSmith::OpenAI.api_key.nil?
+        return unless WordSmith::Services::OpenAI.api_key.nil?
 
         open_a_i_message = T.let("
-                To use OpenAI, you need to set an API key.
-                You can set it using '#{EXECUTABLE_NAME} #{OPENAI_API_KEY_COMMAND} <key>'
+                To use OpenAI, you need to set an API key and Org ID.
+                You can set the API key using '#{EXECUTABLE_NAME} #{OPENAI_API_KEY_COMMAND} <key>'
+                You can set the Org ID using '#{EXECUTABLE_NAME} #{OPENAI_ORG_ID_COMMAND} <key>'
               ", String)
         Kernel.puts WordSmith::Helpers::Str.lstr_every_line(open_a_i_message)
       end
@@ -74,9 +83,16 @@ module WordSmith
 
       sig { params(key: String).void }
       def store_open_a_i_api_key(key)
-        WordSmith::OpenAI.store_api_key(key)
+        WordSmith::Services::OpenAI.store_api_key(key)
 
         puts 'OpenAI API key set!'
+      end
+
+      sig { params(key: String).void }
+      def store_open_a_i_org_id(key)
+        WordSmith::Services::OpenAI.store_org_id(key)
+
+        puts 'OpenAI Org ID set!'
       end
     end
   end
