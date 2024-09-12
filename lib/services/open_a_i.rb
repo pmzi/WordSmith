@@ -72,7 +72,7 @@ module WordSmith
             You are a great translator. Give the user the meaning of the word in English.
             Also give the user an example of the sentence using the word.
             Give me the result in the following format:
-            <word>:
+            <word>, <pronunciation>: <new_line>
             <meaning>
             - <example> -> <example meaning>
             Do not hallucinate.
