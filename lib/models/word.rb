@@ -33,6 +33,24 @@ module WordSmith
         @example = example
       end
 
+      sig { void }
+      def delete
+        Services::DB.instance.execute('DELETE FROM words WHERE id = ?', [@id])
+      end
+
+      sig { params(word: String, pronunciation: String, meaning: String, example: String).returns(Word) }
+      def update(word:, pronunciation:, meaning:, example:)
+        result = Services::DB.instance.execute('UPDATE words SET word = ?, pronunciation = ?, meaning = ?, example = ? WHERE id = ? RETURNING *',
+                                               [word, pronunciation, meaning, example, @id]).first
+
+        @word = result[1]
+        @pronunciation = result[2]
+        @meaning = result[3]
+        @example = result[4]
+
+        self
+      end
+
       class << self
         extend T::Sig
 
@@ -49,11 +67,6 @@ module WordSmith
                                                  [word, pronunciation, meaning, example]).first
 
           new(id: result[0], word: result[1], pronunciation: result[2], meaning: result[3], example: result[4])
-        end
-
-        sig { params(id: Integer).void }
-        def delete(id)
-          Services::DB.instance.execute('DELETE FROM words WHERE id = ?', [id])
         end
 
         sig { params(id: Integer).returns(Word) }
