@@ -16,13 +16,21 @@ module WordSmith
       attr_reader :word
 
       sig { returns(String) }
-      attr_reader :result
+      attr_reader :pronunciation
 
-      sig { params(id: Integer, word: String, result: String).void }
-      def initialize(id:, word:, result:)
+      sig { returns(String) }
+      attr_reader :meaning
+
+      sig { returns(String) }
+      attr_reader :example
+
+      sig { params(id: Integer, word: String, pronunciation: String, meaning: String, example: String).void }
+      def initialize(id:, word:, pronunciation:, meaning:, example:)
         @id = id
         @word = word
-        @result = result
+        @pronunciation = pronunciation
+        @meaning = meaning
+        @example = example
       end
 
       class << self
@@ -30,18 +38,17 @@ module WordSmith
 
         sig { returns(T::Array[Word]) }
         def all
-          Services::DB.instance.execute('SELECT * FROM words').map do |row|
-            new(**row)
+          Services::DB.instance.execute('SELECT id, word, pronunciation, meaning, example FROM words').map do |row|
+            new(id: row[0], word: row[1], pronunciation: row[2], meaning: row[3], example: row[4])
           end
         end
 
-        sig { params(word: String, result: String).returns(Word) }
-        def create(word:, result:)
-          result = Services::DB.instance.execute('INSERT INTO words (word, result) VALUES (?, ?) RETURNING *',
-                                                 [word, result])
+        sig { params(word: String, pronunciation: String, meaning: String, example: String).returns(Word) }
+        def create(word:, pronunciation:, meaning:, example:)
+          result = Services::DB.instance.execute('INSERT INTO words (word, pronunciation, meaning, example) VALUES (?, ?, ?, ?) RETURNING *',
+                                                 [word, pronunciation, meaning, example]).first
 
-          puts result.first
-          new(**result.first)
+          new(id: result[0], word: result[1], pronunciation: result[2], meaning: result[3], example: result[4])
         end
 
         sig { params(id: Integer).void }
@@ -51,15 +58,17 @@ module WordSmith
 
         sig { params(id: Integer).returns(Word) }
         def find(id)
-          Services::DB.instance.execute('SELECT id, word, result FROM words WHERE id = ?', [id]).map do |row|
-            new(id: row[0], word: row[1], result: row[2])
+          Services::DB.instance.execute('SELECT id, word, pronunciation, meaning, example FROM words WHERE id = ?',
+                                        [id]).map do |row|
+            new(id: row[0], word: row[1], pronunciation: row[2], meaning: row[3], example: row[4])
           end.first
         end
 
         sig { params(word: String).returns(T.nilable(Word)) }
         def find_by_word(word)
-          Services::DB.instance.execute('SELECT id, word, result FROM words WHERE word = ?', [word]).map do |row|
-            new(id: row[0], word: row[1], result: row[2])
+          Services::DB.instance.execute('SELECT id, word, pronunciation, meaning, example FROM words WHERE word = ?',
+                                        [word]).map do |row|
+            new(id: row[0], word: row[1], pronunciation: row[2], meaning: row[3], example: row[4])
           end.first
         end
       end

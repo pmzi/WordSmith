@@ -61,20 +61,34 @@ module WordSmith
         @client = ::OpenAI::Client.new
       end
 
-      sig { params(text: String).returns(String) }
+      sig do
+        params(text: String).returns({ word: String, pronunciation: String, meaning: String, example: String })
+      end
       def translate(text)
         response = @client.chat(
           parameters: {
             model: 'gpt-4o-mini',
+            response_format: { type: 'json_schema',
+                               json_schema: {
+                                 name: 'Translation',
+                                 strict: true,
+                                 schema: {
+                                   type: 'object',
+                                   properties: {
+                                     word: { type: 'string' },
+                                     pronunciation: { type: 'string' },
+                                     meaning: { type: 'string' },
+                                     example: { type: 'string' }
+                                   },
+                                   additionalProperties: false,
+                                   required: %w[word pronunciation meaning example]
+                                 }
+                               } },
             messages: [
               {
                 role: 'system', content: Helpers::Str.lstr_every_line("
             You are a great translator. Give the user the meaning of the word in English.
             Also give the user an example of the sentence using the word.
-            Give me the result in the following format:
-            <word>, <pronunciation>: <new_line>
-            <meaning>
-            - <example> -> <example meaning>
             Do not hallucinate.
             Be to the point and concise without an
             ")
@@ -87,7 +101,7 @@ module WordSmith
           }
         )
 
-        response.dig('choices', 0, 'message', 'content')
+        JSON.parse(response.dig('choices', 0, 'message', 'content'), { symbolize_names: true })
       end
     end
   end

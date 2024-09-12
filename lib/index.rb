@@ -3,12 +3,15 @@
 require_relative 'command_runner/index'
 require_relative 'services/logger'
 require_relative 'migrations/index'
+require_relative 'helpers/logo_visualizer'
 module WordSmith
   class << self
     extend T::Sig
 
     sig { params(args: T::Array[String]).void }
     def run(args)
+      Helpers::LogoVisualizer.draw
+
       run_migrations
 
       CommandRunner.run(args)
