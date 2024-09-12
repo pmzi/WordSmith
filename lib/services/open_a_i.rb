@@ -61,7 +61,7 @@ module WordSmith
         @client = ::OpenAI::Client.new
       end
 
-      sig { params(text: String).void }
+      sig { params(text: String).returns(String) }
       def translate(text)
         response = @client.chat(
           parameters: {
@@ -87,7 +87,7 @@ module WordSmith
           }
         )
 
-        puts response.dig('choices', 0, 'message', 'content')
+        response.dig('choices', 0, 'message', 'content')
       end
     end
   end

@@ -11,7 +11,6 @@ GEM
       multipart-post (~> 2)
     faraday-net_http (3.3.0)
       net-http
-    gem (0.0.1.alpha)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
     logger (1.6.1)
@@ -61,6 +60,12 @@ GEM
       prism (>= 0.28.0)
       sorbet-static-and-runtime (>= 0.5.10187)
       thor (>= 0.19.2)
+    sqlite3 (2.0.4-aarch64-linux-gnu)
+    sqlite3 (2.0.4-arm-linux-gnu)
+    sqlite3 (2.0.4-arm64-darwin)
+    sqlite3 (2.0.4-x86-linux-gnu)
+    sqlite3 (2.0.4-x86_64-darwin)
+    sqlite3 (2.0.4-x86_64-linux-gnu)
     tapioca (0.16.2)
       bundler (>= 2.2.25)
       netrc (>= 0.11.0)
@@ -87,11 +92,11 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  gem (~> 0.0.1.alpha)
   rubocop
   ruby-openai (~> 7.1)
   sorbet
   sorbet-runtime
+  sqlite3 (~> 2.0)
   tapioca
 
 BUNDLED WITH
