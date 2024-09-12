@@ -1,6 +1,7 @@
 # typed: true
 
 require_relative 'command_runner/index'
+require_relative 'services/logger'
 require_relative 'migrations/index'
 module WordSmith
   class << self
@@ -20,11 +21,11 @@ module WordSmith
     private
 
     def run_migrations
-      puts 'Running migrations...' if Config::DEBUG_MODE
+      Services::Logger.debug_log('Running migrations...')
 
       Migrations.run
 
-      puts 'Migrations complete.' if Config::DEBUG_MODE
+      Services::Logger.debug_log('Migrations complete.')
     end
   end
 end

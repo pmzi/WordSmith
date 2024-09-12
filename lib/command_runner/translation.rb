@@ -4,6 +4,7 @@
 require 'sorbet-runtime'
 require_relative '../services/open_a_i'
 require_relative '../models/word'
+require_relative '../services/logger'
 
 module WordSmith
   module CommandRunner
@@ -15,7 +16,13 @@ module WordSmith
         def find_translation(word)
           existing_word = Models::Word.find_by_word(word)
 
-          return existing_word.result unless existing_word.nil?
+          unless existing_word.nil?
+            Services::Logger.debug_log("Found existing word: #{existing_word.word}")
+
+            return existing_word.result
+          end
+
+          Services::Logger.debug_log("Creating new word: #{word}")
 
           result = Services::OpenAI.new.translate(word)
 
