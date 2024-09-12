@@ -92,6 +92,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  rainbow (~> 3.1)
   rubocop
   ruby-openai (~> 7.1)
   sorbet
