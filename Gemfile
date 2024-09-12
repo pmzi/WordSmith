@@ -8,3 +8,5 @@ gem 'sorbet-runtime'
 gem 'tapioca', require: false, group: %i[development test]
 
 gem 'ruby-openai', '~> 7.1'
+
+gem "sqlite3", "~> 2.0"
