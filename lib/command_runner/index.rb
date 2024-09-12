@@ -22,6 +22,7 @@ module WordSmith
       sig { params(args: T::Array[String]).void }
       def run(args)
         args_clone = args.clone
+        options = T.let({ no_cache: false }, { no_cache: T::Boolean })
 
         parser = OptionParser.new do |opts|
           opts.banner = "Usage: #{EXECUTABLE_NAME} [word] [options...]"
@@ -36,6 +37,10 @@ module WordSmith
             store_open_a_i_org_id(key)
 
             exit
+          end
+
+          opts.on('--no-cache', 'Translate word without using cache') do
+            options[:no_cache] = true
           end
 
           opts.on_tail('-h', '--help', 'Show help') do
@@ -57,7 +62,7 @@ module WordSmith
 
         raise ArgumentError, 'No word provided' if word.nil? || word.empty?
 
-        Translation.run(word)
+        Translation.run(word, options)
       end
 
       private
