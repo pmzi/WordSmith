@@ -2,6 +2,8 @@
 
 WordSmith is a command-line tool for translating words, phrases, and words in context of a sentence.
 
+<img width="524" alt="Screenshot 2024-09-13 at 12 14 05 AM" src="https://github.com/user-attachments/assets/a18514b5-044d-474e-98ad-9cb814ada8e9">
+
 ## Features
 
 - Translate single words or phrases
