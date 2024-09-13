@@ -62,9 +62,11 @@ module WordSmith
       end
 
       sig do
-        params(text: String).returns({ word: String, pronunciation: String, meaning: String, example: String })
+        params(text: String, target_language: T.nilable(String)).returns({ word: String, pronunciation: String,
+                                                                           meaning: String, example: String,
+                                                                           translation_to_target_language: T.nilable(String) })
       end
-      def translate(text)
+      def translate(text:, target_language:)
         response = @client.chat(
           parameters: {
             model: 'gpt-4o-mini',
@@ -78,10 +80,11 @@ module WordSmith
                                      word: { type: 'string' },
                                      pronunciation: { type: 'string' },
                                      meaning: { type: 'string' },
-                                     example: { type: 'string' }
+                                     example: { type: 'string' },
+                                     translation_to_target_language: { type: %w[string null] }
                                    },
                                    additionalProperties: false,
-                                   required: %w[word pronunciation meaning example]
+                                   required: %w[word pronunciation meaning example translation_to_target_language]
                                  }
                                } },
             messages: [
@@ -89,6 +92,7 @@ module WordSmith
                 role: 'system', content: Helpers::Str.lstr_every_line("
             You are a great translator. Give the user the meaning of the word in English.
             Also give the user an example of the sentence using the word.
+            #{get_target_language_prompt(target_language)}
             Do not hallucinate.
             Be to the point and concise without an
             ")
@@ -106,9 +110,11 @@ module WordSmith
 
       sig do
         params(sentence: String,
-               word: String).returns({ word: String, pronunciation: String, meaning: String, example: String })
+               word: String,
+               target_language: T.nilable(String)).returns({ word: String, pronunciation: String, meaning: String,
+                                                             example: String })
       end
-      def translate_in_context_of_sentence(sentence, word)
+      def translate_in_context_of_sentence(sentence:, word:, target_language:)
         response = @client.chat(
           parameters: {
             model: 'gpt-4o-mini',
@@ -122,7 +128,8 @@ module WordSmith
                                      word: { type: 'string' },
                                      pronunciation: { type: 'string' },
                                      meaning: { type: 'string' },
-                                     example: { type: 'string' }
+                                     example: { type: 'string' },
+                                     translation_to_target_language: { type: %w[string null] }
                                    },
                                    additionalProperties: false,
                                    required: %w[word pronunciation meaning example]
@@ -133,6 +140,7 @@ module WordSmith
                 role: 'system', content: Helpers::Str.lstr_every_line("
             You are a great translator. Give the user the meaning of the word in context of the sentence in English.
             Also give the user an example of the sentence using the meaning of the word in that context.
+            #{get_target_language_prompt(target_language)}
             Do not hallucinate.
             Be to the point and concise without an
             ")
@@ -149,6 +157,16 @@ module WordSmith
         )
 
         JSON.parse(response.dig('choices', 0, 'message', 'content'), { symbolize_names: true })
+      end
+
+      private
+
+      def get_target_language_prompt(target_language)
+        return '' if target_language.nil?
+
+        Helpers::Str.lstr_every_line("
+          Also, please give me the literal translation of the word in #{target_language} language.
+          ")
       end
     end
   end

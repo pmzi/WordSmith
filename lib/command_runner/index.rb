@@ -23,15 +23,25 @@ module WordSmith
       class Options < T::Struct
         prop :no_cache, T::Boolean
         prop :file_path, T.nilable(String)
+        prop :target_language, T.nilable(String)
       end
 
       sig { params(args: T::Array[String]).void }
       def run(args)
         args_clone = args.clone
-        options = Options.new(no_cache: false, file_path: nil)
+        options = Options.new(no_cache: false, file_path: nil, target_language: nil)
 
         parser = OptionParser.new do |opts|
           opts.banner = "Usage: #{EXECUTABLE_NAME} [word] [options...]"
+
+          opts.on('-f', '--file [FILE_PATH]', 'Read words from a file') do |file_path|
+            options.file_path = file_path
+          end
+
+          opts.on('--target-language [LANGUAGE_CODE]',
+                  'If you want to translate the word to a specific language, specify the language. e.g: Spanish') do |target_language|
+            options.target_language = target_language
+          end
 
           opts.on("#{OPENAI_API_KEY_COMMAND} [key]", 'Set the OpenAI API key') do |key|
             store_open_a_i_api_key(key)
@@ -47,10 +57,6 @@ module WordSmith
 
           opts.on('--no-cache', 'Translate word without using cache') do
             options.no_cache = true
-          end
-
-          opts.on('-f', '--file [FILE_PATH]', 'Read words from a file') do |file_path|
-            options.file_path = file_path
           end
 
           opts.on_tail('-h', '--help', 'Show help') do
@@ -77,7 +83,8 @@ module WordSmith
         raise ArgumentError, 'No word or file path provided' if input_text.empty? && options.file_path.nil?
 
         translation_options = {
-          no_cache: options.no_cache
+          no_cache: options.no_cache,
+          target_language: options.target_language
         }
 
         unless options.file_path.nil?
