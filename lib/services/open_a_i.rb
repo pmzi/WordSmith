@@ -103,6 +103,53 @@ module WordSmith
 
         JSON.parse(response.dig('choices', 0, 'message', 'content'), { symbolize_names: true })
       end
+
+      sig do
+        params(sentence: String,
+               word: String).returns({ word: String, pronunciation: String, meaning: String, example: String })
+      end
+      def translate_in_context_of_sentence(sentence, word)
+        response = @client.chat(
+          parameters: {
+            model: 'gpt-4o-mini',
+            response_format: { type: 'json_schema',
+                               json_schema: {
+                                 name: 'Translation',
+                                 strict: true,
+                                 schema: {
+                                   type: 'object',
+                                   properties: {
+                                     word: { type: 'string' },
+                                     pronunciation: { type: 'string' },
+                                     meaning: { type: 'string' },
+                                     example: { type: 'string' }
+                                   },
+                                   additionalProperties: false,
+                                   required: %w[word pronunciation meaning example]
+                                 }
+                               } },
+            messages: [
+              {
+                role: 'system', content: Helpers::Str.lstr_every_line("
+            You are a great translator. Give the user the meaning of the word in context of the sentence in English.
+            Also give the user an example of the sentence using the meaning of the word in that context.
+            Do not hallucinate.
+            Be to the point and concise without an
+            ")
+              },
+              {
+                role: 'user', content: Helpers::Str.lstr_every_line("
+                Sentence: #{sentence}
+                Word: #{word}
+                ")
+              }
+            ],
+            temperature: 0.7
+          }
+        )
+
+        JSON.parse(response.dig('choices', 0, 'message', 'content'), { symbolize_names: true })
+      end
     end
   end
 end

@@ -10,10 +10,11 @@ module WordSmith
         Services::DB.instance.execute <<-SQL
           CREATE TABLE IF NOT EXISTS words (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            word TEXT NOT NULL UNIQUE,
+            word TEXT NOT NULL,
             pronunciation TEXT NOT NULL,
             meaning TEXT NOT NULL,
             example TEXT NOT NULL,
+            context TEXT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           )
         SQL
