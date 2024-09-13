@@ -32,5 +32,3 @@ module WordSmith
     end
   end
 end
-
-WordSmith.run(ARGV)
