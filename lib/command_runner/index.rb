@@ -58,11 +58,11 @@ module WordSmith
 
         parser.parse!(args_clone)
 
-        word = args_clone.first&.chomp
+        input_text = args_clone.join(' ').chomp
 
-        raise ArgumentError, 'No word provided' if word.nil? || word.empty?
+        raise ArgumentError, 'No word provided' if input_text.empty?
 
-        Translation.run(word, options)
+        Translation.run(input_text, options)
       end
 
       private
