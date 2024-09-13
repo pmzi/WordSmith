@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.description = 'Command-line tool for quick and easy English word lookup.'
   s.authors     = ['Pouya Mozaffar Magham']
   s.email       = 'pouya.mozafar@gmail.com'
-  s.files       = ['lib/*']
+  s.files       = Dir['lib/**/*.rb', 'version.rb']
   s.executables << 'ws'
   s.homepage =
     'https://github.com/pmzi/WordSmith'

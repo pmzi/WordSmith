@@ -15,6 +15,8 @@ module WordSmith
 
       sig { void }
       def initialize
+        Dir.mkdir(File.dirname(DB_FILE)) unless Dir.exist?(File.dirname(DB_FILE))
+
         @db = super(DB_FILE)
       end
     end
