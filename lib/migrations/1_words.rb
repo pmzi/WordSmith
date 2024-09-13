@@ -15,6 +15,8 @@ module WordSmith
             meaning TEXT NOT NULL,
             example TEXT NOT NULL,
             context TEXT DEFAULT NULL,
+            target_language TEXT DEFAULT NULL,
+            translation_to_target_language TEXT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           )
         SQL
