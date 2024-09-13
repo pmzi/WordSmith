@@ -69,7 +69,22 @@ module WordSmith
 
       sig { params(opts: OptionParser).void }
       def print_help(opts)
-        Kernel.puts opts
+        puts Helpers::Str.lstr_every_line("
+          Translate words, phrases and words in context of a sentence.
+
+          -> To translate a word or a phrase, just run:
+            #{Rainbow(EXECUTABLE_NAME + ' [word/phrase]').blue.bold}
+
+          -> To translate a word in context of a sentence, you should write the sentence and wrap the word in slashes:
+            #{Rainbow(EXECUTABLE_NAME + ' a /random/ sentence').blue.bold}
+            In this example, the word 'random' will be translated in context of the sentence.
+
+          #{Rainbow('----------------------------------------').yellow.bright}
+        ")
+
+        puts '', opts
+
+        return unless WordSmith::Services::OpenAI.api_key.nil?
 
         return unless WordSmith::Services::OpenAI.api_key.nil?
 
@@ -78,7 +93,7 @@ module WordSmith
                 You can set the API key using '#{EXECUTABLE_NAME} #{OPENAI_API_KEY_COMMAND} <key>'
                 You can set the Org ID using '#{EXECUTABLE_NAME} #{OPENAI_ORG_ID_COMMAND} <key>'
               ", String)
-        Kernel.puts WordSmith::Helpers::Str.lstr_every_line(open_a_i_message)
+        puts '', WordSmith::Helpers::Str.lstr_every_line(open_a_i_message)
       end
 
       sig { void }
