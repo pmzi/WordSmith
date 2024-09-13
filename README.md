@@ -101,4 +101,4 @@ ws --set-openai-org-id [key]
 
 ## License
 
-[Add license information here]
+MIT
