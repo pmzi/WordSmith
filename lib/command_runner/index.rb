@@ -11,6 +11,7 @@ require 'sorbet-runtime'
 module WordSmith
   module CommandRunner
     class ArgumentError < StandardError; end
+    class BadPermutationOfArgumentsError < ArgumentError; end
 
     class << self
       extend T::Sig
@@ -19,10 +20,15 @@ module WordSmith
       OPENAI_API_KEY_COMMAND = '--set-openai-api-key'
       OPENAI_ORG_ID_COMMAND = '--set-openai-org-id'
 
+      class Options < T::Struct
+        prop :no_cache, T::Boolean
+        prop :file_path, T.nilable(String)
+      end
+
       sig { params(args: T::Array[String]).void }
       def run(args)
         args_clone = args.clone
-        options = T.let({ no_cache: false }, { no_cache: T::Boolean })
+        options = Options.new(no_cache: false, file_path: nil)
 
         parser = OptionParser.new do |opts|
           opts.banner = "Usage: #{EXECUTABLE_NAME} [word] [options...]"
@@ -40,7 +46,11 @@ module WordSmith
           end
 
           opts.on('--no-cache', 'Translate word without using cache') do
-            options[:no_cache] = true
+            options.no_cache = true
+          end
+
+          opts.on('-f', '--file [FILE_PATH]', 'Read words from a file') do |file_path|
+            options.file_path = file_path
           end
 
           opts.on_tail('-h', '--help', 'Show help') do
@@ -60,9 +70,29 @@ module WordSmith
 
         input_text = args_clone.join(' ').chomp
 
-        raise ArgumentError, 'No word provided' if input_text.empty?
+        if !input_text.empty? && !options.file_path.nil?
+          raise BadPermutationOfArgumentsError, 'Both word and file path cannot be provided'
+        end
 
-        Translation.run(input_text, options)
+        raise ArgumentError, 'No word or file path provided' if input_text.empty? && options.file_path.nil?
+
+        translation_options = {
+          no_cache: options.no_cache
+        }
+
+        unless options.file_path.nil?
+          raise ArgumentError, "File not found: #{options.file_path}" unless File.exist?(options.file_path)
+
+          File.readlines(T.must(options.file_path)).each_with_index do |line, index|
+            puts Rainbow('-' * 60).yellow.bright unless index.zero?
+
+            Translation.run(line, translation_options)
+          end
+
+          return
+        end
+
+        Translation.run(input_text, translation_options)
       end
 
       private
